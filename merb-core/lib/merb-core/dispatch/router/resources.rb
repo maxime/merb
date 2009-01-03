@@ -129,14 +129,6 @@ module Merb
               to(:action => "#{action}").name(action, singular).register_resource(klass_name, action, :identifiers => keys)
           end
 
-          # => update
-          resource.match("/#{root_keys}(.:format)", match_opts.merge(:method => :put)).
-            to(:action => "update")
-            
-          # => destroy
-          resource.match("/#{root_keys}(.:format)", match_opts.merge(:method => :delete)).
-            to(:action => "destroy")
-
           if block_given?
             parent_keys = keys.map do |k|
               k == :id ? "#{singular}_id".to_sym : k
@@ -167,7 +159,14 @@ module Merb
           # => show
           resource.match("/#{root_keys}(.:format)", match_opts.merge(:method => :get)).to(:action => "show").
             name(singular).register_resource(klass_name, :identifiers => keys)
-            
+          
+          # => update
+          resource.match("/#{root_keys}(.:format)", match_opts.merge(:method => :put)).
+            to(:action => "update")
+
+          # => destroy
+          resource.match("/#{root_keys}(.:format)", match_opts.merge(:method => :delete)).
+            to(:action => "destroy")
         end # namespace
       end # resources
 
