@@ -122,10 +122,6 @@ module Merb
               name(action, name).register_resource(name, action)
           end
 
-          # => show
-          resource.match("/#{root_keys}(.:format)", match_opts.merge(:method => :get)).to(:action => "show").
-            name(singular).register_resource(klass_name, :identifiers => keys)
-
           # => user defined member routes
           member.each_pair do |action, method|
             action = action.to_s
@@ -152,11 +148,10 @@ module Merb
             nested_match_opts["#{singular}_id".to_sym] = match_opts[:id] if match_opts[:id]
             
             # Procs for building the extra collection/member resource routes
-            placeholder = Router.resource_routes[ [@options[:resource_prefix], klass_name].flatten.compact ]
             builders    = {}
             
             builders[:collection] = lambda do |action, to, method|
-              resource.before(placeholder).match("/#{action}(.:format)", match_opts.merge(:method => method)).
+              resource.match("/#{action}(.:format)", match_opts.merge(:method => method)).
                 to(:action => to).name(action, name).register_resource(name, action)
             end
             
@@ -168,6 +163,11 @@ module Merb
             resource.options(:name_prefix => singular, :resource_prefix => klass_name, :parent_keys => parent_keys).
               match("/#{nested_keys}", nested_match_opts).resource_block(builders, &block)
           end
+          
+          # => show
+          resource.match("/#{root_keys}(.:format)", match_opts.merge(:method => :get)).to(:action => "show").
+            name(singular).register_resource(klass_name, :identifiers => keys)
+            
         end # namespace
       end # resources
 
